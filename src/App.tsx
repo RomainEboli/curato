@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./components/Button";
 import FilterBar from "./components/FilterBar";
 import RecommendationCard from "./components/RecommendationCard";
 import RecommendationForm from "./components/RecommendationForm";
 import { recommendations, themes } from "./data/recommendations";
 import type { Recommendation } from "./types/recommendation";
+import { ProfilePreview } from "./components/ProfilePreview";
 import styles from "./App.module.css";
+
+const RECOMMENDATIONS_STORAGE_KEY = "curato-recommendations";
 
 function App() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,8 +16,31 @@ function App() {
     (typeof themes)[number] | "Tous"
   >("Tous");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [recommendationList, setRecommendationList] =
-    useState<Recommendation[]>(recommendations);
+
+  const [recommendationList, setRecommendationList] = useState<
+    Recommendation[]
+  >(() => {
+    const savedRecommendations = localStorage.getItem(
+      RECOMMENDATIONS_STORAGE_KEY,
+    );
+
+    if (!savedRecommendations) {
+      return recommendations;
+    }
+
+    try {
+      return JSON.parse(savedRecommendations) as Recommendation[];
+    } catch {
+      return recommendations;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      RECOMMENDATIONS_STORAGE_KEY,
+      JSON.stringify(recommendationList),
+    );
+  }, [recommendationList]);
 
   function handleAddRecommendation(recommendation: Recommendation) {
     setRecommendationList((currentRecommendations) => [
@@ -25,6 +51,11 @@ function App() {
     setIsFormOpen(false);
   }
   const normalizedSearchTerm = searchTerm.trim().toLocaleLowerCase("fr-FR");
+
+  const currentProfile = {
+    firstName: "Romain Eboli",
+    city: "Marseille",
+  };
 
   const filteredRecommendations = recommendationList.filter(
     (recommendation) => {
@@ -133,6 +164,10 @@ function App() {
             </div>
           )}
         </section>
+        <ProfilePreview
+          firstName={currentProfile.firstName}
+          city={currentProfile.city}
+        />
       </main>
     </div>
   );
