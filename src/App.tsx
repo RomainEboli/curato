@@ -79,6 +79,17 @@ function App() {
       return matchesTheme && matchesSearch;
     },
   );
+
+  let feedDescription = "";
+
+  if (filteredRecommendations.length === 0) {
+    feedDescription = "Aucune découverte ne correspond à ta recherche.";
+  } else if (filteredRecommendations.length === 1) {
+    feedDescription = "1 découverte sélectionnée dans ton univers visuel.";
+  } else {
+    feedDescription = `${filteredRecommendations.length} découvertes sélectionnées dans ton univers visuel.`;
+  }
+
   return (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -135,9 +146,7 @@ function App() {
               Aujourd’hui pour toi
             </h2>
 
-            <p className={styles.sectionDescription}>
-              Trois découvertes sélectionnées dans ton univers visuel.
-            </p>
+            <p className={styles.sectionDescription}>{feedDescription}</p>
           </div>
 
           <FilterBar
